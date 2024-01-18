@@ -29,7 +29,10 @@ class Chat(flet.Row):
         ]
     
     def getInitials(self, username: str):
-        return username[:1].capitalize()
+        if username:
+            return username[:1].capitalize()
+        else:
+            return "Unknown Chatoz"
     
     def getAvatarColor(self, username: str):
         colors_lookup = [
@@ -77,7 +80,7 @@ def main(page: flet.Page):
     # define join_chatoz fucntion
     def join_chatoz(e):
         if not username.value:
-            username.error_text = "Username Cannot be blank!"
+            username.error_text = "Username cannot be blank!"
             username.update()
         else:
             page.session.set("username", username.value)
@@ -85,15 +88,14 @@ def main(page: flet.Page):
             page.pubsub.send_all(Message(user=username.value, text=f"{username.value} has joined the chat.", message_type="login"))
             page.update()
     
-    # make a dialog
-    page.dialog = flet.AlertDialog(
-        open=True,
-        modal=True,
-        title=flet.Text("Welcome to Chatoz!"),
-        content=flet.Column([username], tight=True),
-        actions=[flet.ElevatedButton(text="Join Chatoz", on_click=join_chatoz)],
-        actions_alignment="end",
-    )
+    # define another function for button
+    def send(e):
+        # format using the on_message function
+        page.pubsub.send_all(Message(user=page.session.get('username'), text=new_text.value, message_type="chat"))
+        # reset the textfield
+        new_text.value = ""
+        # update the page
+        page.update()
     
     # define a function to show which user texted
     def on_message(message: Message):
@@ -107,14 +109,15 @@ def main(page: flet.Page):
     # use pubsub sub-module for synchronizing texts
     page.pubsub.subscribe(on_message)
     
-    # define another function for button
-    def send(e):
-        # format using the on_message function
-        page.pubsub.send_all(Message(user=page.session.get('username'), text=new_text.value, message_type="chat"))
-        # reset the textfield
-        new_text.value = ""
-        # update the page
-        page.update()
+    # make a dialog
+    page.dialog = flet.AlertDialog(
+        open=True,
+        modal=True,
+        title=flet.Text("Welcome to Chatoz!"),
+        content=flet.Column([username], tight=True),
+        actions=[flet.ElevatedButton(text="Join Chatoz", on_click=join_chatoz)],
+        actions_alignment="end",
+    )
     
     # add all these in the screen
     page.add(chat, flet.Row(controls=[new_text, flet.ElevatedButton("Chatoz", on_click=send)]))
