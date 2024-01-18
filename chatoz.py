@@ -7,6 +7,48 @@ class Message():
         self.text = text
         self.message_type = message_type
 
+# define a class Chat
+class Chat(flet.Row):
+    def __init__(self, message: Message):
+        super().__init__()
+        self.vertical_alignment="start"
+        self.controls=[
+            flet.CircleAvatar(
+                content=flet.Text(self.getInitials(message.user)),
+                color=flet.colors.WHITE,
+                bgcolor=self.getAvatarColor(message.user),
+            ),
+            flet.Column(
+                [
+                    flet.Text(message.user, weight="bold"),
+                    flet.Text(message.text, selectable=True),
+                ],
+                tight=True,
+                spacing=5,
+            ),
+        ]
+    
+    def getInitials(self, username: str):
+        return username[:1].capitalize()
+    
+    def getAvatarColor(self, username: str):
+        colors_lookup = [
+            flet.colors.AMBER,
+            flet.colors.BROWN,
+            flet.colors.CYAN,
+            flet.colors.BLUE,
+            flet.colors.INDIGO,
+            flet.colors.LIME,
+            flet.colors.GREEN,
+            flet.colors.PURPLE,
+            flet.colors.ORANGE,
+            flet.colors.PINK,
+            flet.colors.TEAL,
+            flet.colors.YELLOW,
+            flet.colors.RED,
+        ]
+        return colors_lookup[hash(username) % len(colors_lookup)]
+
 def main(page: flet.Page):
     # column contains all the chats ~ Vertically
     chat = flet.Column()
@@ -39,9 +81,10 @@ def main(page: flet.Page):
     # define a function to show which user texted
     def on_message(message: Message):
         if message.message_type == "chat":
-            chat.controls.append(flet.Text(f"{message.user}: {message.text}"))
+            m = Chat(message=message)
         elif message.message_type == "login":
-            chat.controls.append(flet.Text(message.text, italic=True, color=flet.colors.BLACK45, size=12))
+            m = flet.Text(message.text, italic=True, color=flet.colors.BLACK45, size=12)
+        chat.controls.append(m)
         page.update()
     
     # use pubsub sub-module for synchronizing texts
