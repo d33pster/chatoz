@@ -50,14 +50,23 @@ class Chat(flet.Row):
         return colors_lookup[hash(username) % len(colors_lookup)]
 
 def main(page: flet.Page):
-    # column contains all the chats ~ Vertically
+    # Columns contains all the chats ~ Vertically ==> update ==> changed to listView
     chat = flet.ListView(
         expand=True,
         spacing=10,
         auto_scroll=True,
     )
     # for new texts
-    new_text = flet.TextField()
+    new_text = flet.TextField(
+        hint_text="What ya thinkin...",
+        autofocus=True,
+        shift_enter=True,
+        min_lines=1,
+        max_lines=5,
+        filled=True,
+        expand=True,
+        on_submit=send,
+    )
     # welcome dialog ~ input username
     username = flet.TextField(label="Enter your username")
     
