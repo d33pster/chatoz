@@ -50,6 +50,10 @@ class Chat(flet.Row):
         return colors_lookup[hash(username) % len(colors_lookup)]
 
 def main(page: flet.Page):
+    # title
+    page.horizontal_alignment = "stretch"
+    page.title = "Chatoz Chat ~ made by d33pster"
+    
     # Columns contains all the chats ~ Vertically ==> update ==> changed to listView
     chat = flet.ListView(
         expand=True,
