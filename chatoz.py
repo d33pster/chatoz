@@ -57,26 +57,6 @@ def main(page: flet.Page):
     page.horizontal_alignment = "stretch"
     page.title = "Chatoz Chat ~ made by d33pster"
     
-    # Columns contains all the chats ~ Vertically ==> update ==> changed to listView
-    chat = flet.ListView(
-        expand=True,
-        spacing=10,
-        auto_scroll=True,
-    )
-    # for new texts
-    new_text = flet.TextField(
-        hint_text="What ya thinkin...",
-        autofocus=True,
-        shift_enter=True,
-        min_lines=1,
-        max_lines=5,
-        filled=True,
-        expand=True,
-        on_submit=send,
-    )
-    # welcome dialog ~ input username
-    username = flet.TextField(label="Enter your username")
-    
     # define join_chatoz fucntion
     def join_chatoz(e):
         if not username.value:
@@ -85,17 +65,19 @@ def main(page: flet.Page):
         else:
             page.session.set("username", username.value)
             page.dialog.open = False
+            new_text.prefix = flet.Text(f"{username.value}: ")
             page.pubsub.send_all(Message(user=username.value, text=f"{username.value} has joined the chat.", message_type="login"))
             page.update()
     
     # define another function for button
     def send(e):
-        # format using the on_message function
-        page.pubsub.send_all(Message(user=page.session.get('username'), text=new_text.value, message_type="chat"))
-        # reset the textfield
-        new_text.value = ""
-        # update the page
-        page.update()
+        if new_text.value != "":
+            # format using the on_message function
+            page.pubsub.send_all(Message(user=page.session.get('username'), text=new_text.value, message_type="chat"))
+            # reset the textfield
+            new_text.value = ""
+            # update the page
+            page.update()
     
     # define a function to show which user texted
     def on_message(message: Message):
@@ -109,6 +91,13 @@ def main(page: flet.Page):
     # use pubsub sub-module for synchronizing texts
     page.pubsub.subscribe(on_message)
     
+    # welcome dialog ~ input username
+    username = flet.TextField(
+        label="Enter your username to join Chatoz",
+        autocorrect=True,
+        on_submit=join_chatoz,
+    )
+    
     # make a dialog
     page.dialog = flet.AlertDialog(
         open=True,
@@ -119,8 +108,46 @@ def main(page: flet.Page):
         actions_alignment="end",
     )
     
-    # add all these in the screen
-    page.add(chat, flet.Row(controls=[new_text, flet.ElevatedButton("Chatoz", on_click=send)]))
+    # Columns contains all the chats ~ Vertically ==> update ==> changed to listView
+    chat = flet.ListView(
+        expand=True,
+        spacing=10,
+        auto_scroll=True,
+    )
+    
+    # for new texts
+    new_text = flet.TextField(
+        hint_text="What ya thinkin...",
+        autofocus=True,
+        shift_enter=True,
+        min_lines=1,
+        max_lines=5,
+        filled=True,
+        expand=True,
+        on_submit=send,
+    )
+    
+    # add all these in the screen ==> updated this with iconbutton and Container
+    page.add(
+        flet.Container(
+            content=chat,
+            border=flet.border.all(1, flet.colors.OUTLINE),
+            border_radius=5,
+            padding=10,
+            expand=True,
+        ),
+        flet.Row(
+            [
+                new_text,
+                flet.IconButton(
+                    icon=flet.icons.AIRLINES_ROUNDED,
+                    tooltip="Chatoz",
+                    on_click=send,
+                ),
+            ]
+        ),
+    )
+    
     
 # activate
-flet.app(main, view=flet.AppView.WEB_BROWSER)
+flet.app(port=8550, target=main, view=flet.WEB_BROWSER)
