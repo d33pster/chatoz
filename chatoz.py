@@ -51,7 +51,11 @@ class Chat(flet.Row):
 
 def main(page: flet.Page):
     # column contains all the chats ~ Vertically
-    chat = flet.Column()
+    chat = flet.ListView(
+        expand=True,
+        spacing=10,
+        auto_scroll=True,
+    )
     # for new texts
     new_text = flet.TextField()
     # welcome dialog ~ input username
